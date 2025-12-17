@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏗️ Clean Architecture Guide - CORE APP
+### Feature Module Template
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+modules/
+  [feature-name]/
+    ├── components/
+    │   ├── [FeatureName]Page.tsx    # Main page component
+    │   ├── [Component1].tsx
+    │   ├── [Component2].tsx
+    │   └── index.ts                 # Export all components
+    │
+    ├── hooks/
+    │   ├── use[Feature].ts          # Main feature hook
+    │   ├── use[SubFeature].ts
+    │   └── index.ts
+    │
+    ├── services/
+    │   ├── [feature].service.ts     # Business logic (class/functions)
+    │   └── index.ts
+    │
+    ├── store/                       # Optional - only if needed
+    │   ├── [feature]Slice.ts
+    │   ├── selectors.ts
+    │   └── index.ts
+    │
+    ├── api/                         # RTK Query endpoints
+    │   ├── [feature]Api.ts
+    │   └── index.ts
+    │
+    ├── types/
+    │   ├── index.ts                 # All types for this feature
+    │   └── contracts.ts             # Interfaces for services
+    │
+    ├── utils/                       # Feature-specific utilities
+    │   └── index.ts
+    │
+    ├── constants.ts                 # Feature constants
+    ├── README.md                    # Feature documentation
+    └── index.ts                     # PUBLIC API - only export what's needed
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔄 Data Flow Architecture
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         APP LAYER                                │
+│  app/                                                            │
+│  - Routes pages to feature components                           │
+│  - Composes providers                                           │
+│  - NO business logic                                            │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      FEATURE MODULES                             │
+│  modules/                                                        │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │    Auth     │ │    Menu     │ │  Production │               │
+│  │   Module    │ │   Module    │ │   Modules   │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+│                                                                  │
+│  Each module contains:                                          │
+│  - Components (UI)                                              │
+│  - Hooks (React state/effects)                                  │
+│  - Services (Business logic)                                    │
+│  - Types (Contracts)                                            │
+│  - Store (Optional, local state)                                │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    INFRASTRUCTURE LAYER                          │
+│  infrastructure/                                                 │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐               │
+│  │   Redux     │ │  NextAuth   │ │  RTK Query  │               │
+│  │   Store     │ │   Config    │ │    Base     │               │
+│  └─────────────┘ └─────────────┘ └─────────────┘               │
+│                                                                  │
+│  Technical concerns only:                                       │
+│  - State management setup                                       │
+│  - Authentication config                                        │
+│  - API client configuration                                     │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    SHARED COMPONENTS                             │
+│  components/                                                     │
+│  - Truly reusable UI components                                 │
+│  - No business logic                                            │
+│  - Pure presentational                                          │
+└─────────────────────────────────────────────────────────────────┘
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📚 References
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Project Structure](https://nextjs.org/docs/app/building-your-application/routing)
+- [Feature-Sliced Design](https://feature-sliced.design/)
+- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
